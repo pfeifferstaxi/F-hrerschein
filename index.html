@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unverbindlicher Führerscheintest</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .question { margin-bottom: 15px; }
+        .result { font-weight: bold; margin-top: 20px; }
+        button { padding: 10px 15px; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Unverbindlicher Führerscheintest</h1>
+        <p>Wähle eine Kategorie und beantworte die Fragen:</p>
+        <div id="categories">
+            <button onclick="startTest('pkw')">PKW</button>
+            <button onclick="startTest('motorrad')">Motorrad/Moped/Mofa</button>
+            <button onclick="startTest('anhaenger')">PKW mit Anhänger</button>
+        </div>
+        <div id="test" style="display:none;">
+            <form id="quizForm"></form>
+            <button onclick="checkAnswers()">Antworten überprüfen</button>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fragenkatalog
+        const questions = {
+            pkw: [
+                { question: "Was ist die Höchstgeschwindigkeit innerorts?", options: ["30 km/h", "50 km/h", "70 km/h"], answer: "50 km/h" },
+                { question: "Wer hat Vorfahrt an einer Kreuzung ohne Schilder?", options: ["Rechts", "Links", "Der größte Wagen"], answer: "Rechts" },
+                { question: "Was bedeutet ein Stoppschild?", options: ["Anhalten", "Langsam fahren", "Weiterfahren"], answer: "Anhalten" },
+                { question: "Wie hoch darf der Alkoholgehalt im Blut maximal sein?", options: ["0,5 Promille", "0,3 Promille", "0,0 Promille"], answer: "0,5 Promille" },
+                { question: "Was signalisiert ein grüner Pfeil am Ampelmast?", options: ["Rechtsabbiegen erlaubt", "Vorfahrt gewähren", "Anhalten"], answer: "Rechtsabbiegen erlaubt" },
+                { question: "Wie weit darf die Ladung eines PKW nach hinten herausragen?", options: ["1 Meter", "1,5 Meter", "3 Meter"], answer: "1,5 Meter" },
+                { question: "Worauf muss man bei Fußgängerüberwegen achten?", options: ["Fußgänger haben immer Vorrang", "Fahrzeuge haben Vorrang", "Es gibt keine Regelung"], answer: "Fußgänger haben immer Vorrang" },
+                { question: "Welche Beleuchtung ist bei Nebel erforderlich?", options: ["Abblendlicht", "Fernlicht", "Standlicht"], answer: "Abblendlicht" },
+                { question: "Wie oft sollte man den Reifendruck überprüfen?", options: ["Monatlich", "Wöchentlich", "Vor jeder Fahrt"], answer: "Wöchentlich" },
+                { question: "Wie schnell darf ein PKW mit Schneeketten fahren?", options: ["50 km/h", "70 km/h", "100 km/h"], answer: "50 km/h" },
+                { question: "Was ist die Hauptursache für Aquaplaning?", options: ["Zu hohe Geschwindigkeit", "Zu wenig Profil", "Beides"], answer: "Beides" },
+                { question: "Was bedeutet das Schild 'Zonenverkehrsberuhigung'?", options: ["Schrittgeschwindigkeit", "50 km/h erlaubt", "Keine Begrenzung"], answer: "Schrittgeschwindigkeit" },
+                { question: "Wie verhalten Sie sich bei einer gelben Ampel?", options: ["Anhalten, wenn möglich", "Weiterfahren", "Nur anhalten, wenn rot folgt"], answer: "Anhalten, wenn möglich" },
+                { question: "Was bedeutet ein Parkverbotsschild?", options: ["Kein Halten und Parken", "Kein Parken", "Kurzzeitparken erlaubt"], answer: "Kein Parken" },
+                { question: "Wann darf die Hupe benutzt werden?", options: ["Nur in Gefahr", "Zum Warnen anderer Fahrer", "Beliebig"], answer: "Nur in Gefahr" },
+                { question: "Was ist die Funktion eines Sicherheitsgurtes?", options: ["Verhindert Unfälle", "Schützt bei einem Unfall", "Kein direkter Nutzen"], answer: "Schützt bei einem Unfall" },
+                { question: "Wann ist ein Fahrzeug verkehrssicher?", options: ["Mit gültigem TÜV", "Wenn alles funktioniert", "Wenn die Reifen gut aussehen"], answer: "Mit gültigem TÜV" },
+                { question: "Was bedeutet 'rechts vor links'?", options: ["Rechtsabbieger haben Vorrang", "Fahrzeuge von rechts haben Vorrang", "Immer Vorfahrt für Radfahrer"], answer: "Fahrzeuge von rechts haben Vorrang" },
+                { question: "Wie schnell darf man in verkehrsberuhigten Bereichen fahren?", options: ["Schrittgeschwindigkeit", "30 km/h", "50 km/h"], answer: "Schrittgeschwindigkeit" },
+                { question: "Wann ist das Überholen verboten?", options: ["Bei Gegenverkehr", "An unübersichtlichen Stellen", "In Wohngebieten"], answer: "An unübersichtlichen Stellen" }
+            ],
+            motorrad: [
+                { question: "Welche Mindestprofiltiefe muss ein Motorradreifen haben?", options: ["1,0 mm", "1,6 mm", "2,0 mm"], answer: "1,6 mm" },
+                { question: "Was muss beim Motorradfahren immer getragen werden?", options: ["Helm", "Sicherheitsweste", "Handschuhe"], answer: "Helm" },
+                // 18 weitere Fragen hinzufügen ...
+            ],
+            anhaenger: [
+                { question: "Welche Maximalgeschwindigkeit gilt mit Anhänger auf der Autobahn?", options: ["80 km/h", "100 km/h", "120 km/h"], answer: "80 km/h" },
+                // 19 weitere Fragen hinzufügen ...
+            ]
+        };
+
+        // Test starten
+        function startTest(category) {
+            const quizForm = document.getElementById("quizForm");
+            quizForm.innerHTML = ""; // Vorherige Fragen löschen
+            let selectedQuestions = questions[category];
+
+            // Fragen zufällig mischen
+            selectedQuestions = selectedQuestions.sort(() => Math.random() - 0.5);
+
+            selectedQuestions.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="question">
+                        <p>${index + 1}. ${q.question}</p>
+                        ${q.options.map(option => `<input type="radio" name="q${index}" value="${option}"> ${option}<br>`).join('')}
+                    </div>
+                `;
+                quizForm.innerHTML += questionHTML;
+            });
+
+            document.getElementById("categories").style.display = "none";
+            document.getElementById("test").style.display = "block";
+        }
+
+        // Antworten überprüfen
+        function checkAnswers() {
+            let score = 0;
+            const category = Object.keys(questions).find(cat => document.getElementById("quizForm").innerHTML.includes(questions[cat][0].question));
+            const selectedQuestions = questions[category];
+
+            selectedQuestions.forEach((q, index) => {
+                const userAnswer = document.querySelector(`input[name="q${index}"]:checked`);
+                if (userAnswer && userAnswer.value === q.answer) {
+                    score++;
+                }
+            });
+
+            document.getElementById("result").textContent = `Du hast ${score} von ${selectedQuestions.length} richtig.`;
+        }
+    </script>
+</body>
+</html>
