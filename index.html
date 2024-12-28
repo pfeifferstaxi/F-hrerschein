@@ -1,0 +1,22 @@
+// Test starten mit zufälliger Auswahl
+function startTest(category) {
+    const quizForm = document.getElementById("quizForm");
+    quizForm.innerHTML = ""; // Vorherige Fragen löschen
+    let selectedQuestions = questions[category];
+
+    // Zufällig 10 Fragen auswählen
+    selectedQuestions = selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 10);
+
+    selectedQuestions.forEach((q, index) => {
+        const questionHTML = `
+            <div class="question">
+                <p>${index + 1}. ${q.question}</p>
+                ${q.options.map(option => `<input type="radio" name="q${index}" value="${option}"> ${option}<br>`).join('')}
+            </div>
+        `;
+        quizForm.innerHTML += questionHTML;
+    });
+
+    document.getElementById("categories").style.display = "none";
+    document.getElementById("test").style.display = "block";
+}
